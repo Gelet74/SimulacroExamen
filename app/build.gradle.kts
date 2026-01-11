@@ -5,9 +5,8 @@ plugins { alias(libs.plugins.android.application)
 
 android {
     namespace = "com.example.simulacroexamen"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk =36
+
 
     defaultConfig {
         applicationId = "com.example.simulacroexamen"
@@ -55,6 +54,7 @@ dependencies {
     implementation(libs.jetbrains.kotlinx.serialization)
     implementation(libs.jakewharton.retrofit)
     implementation(libs.squareup.okhttp3)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

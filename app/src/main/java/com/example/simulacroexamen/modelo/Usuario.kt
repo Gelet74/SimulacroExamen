@@ -10,5 +10,7 @@ data class Usuario (
     @SerialName("nombre")
     val nombre: String = "",
     @SerialName("telefono")
-    val telefono: String=""
+    val telefono: String="",
+    @SerialName("mensajes")
+    val mensajes: List<Mensaje> = emptyList()
 )

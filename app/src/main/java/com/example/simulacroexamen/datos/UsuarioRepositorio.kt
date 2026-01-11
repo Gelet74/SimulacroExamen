@@ -16,5 +16,5 @@ class ConexionUsuarioRepositorio (
     override suspend fun obtenerUsuarios(): List<Usuario> =usuariosServicioApi.obtenerUsuarios()
     override suspend fun insertarUsuario(usuario: Usuario): Usuario = usuariosServicioApi.insertarUsuario(usuario)
     override suspend fun actualizarUsuario(id: String, usuario: Usuario): Usuario = usuariosServicioApi.actualizarUsuario(id, usuario)
-    override suspend fun eliminarUsuario(id: String): Usuario =usuariosServicioApi.eliminarUsuario(id)
+    override suspend fun eliminarUsuario(id: String) = usuariosServicioApi.eliminarUsuario(id)
     }

@@ -13,7 +13,8 @@ interface ContenedorApp {
 
 class UsuarioContenedorApp : ContenedorApp {
 
-    private val baseUrl = "http://10.0.2.2:3000"
+    private val baseUrl = "http://192.168.0.28:3000/"
+
 
     private val json = Json { ignoreUnknownKeys = true }
 

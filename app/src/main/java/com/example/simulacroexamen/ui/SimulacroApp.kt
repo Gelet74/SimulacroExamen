@@ -20,45 +20,45 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.simulacroexamen.R
+import com.example.simulacroexamen.ui.pantallas.PantallaConversacion
 import com.example.simulacroexamen.ui.pantallas.PantallaInicio
-
+import com.example.simulacroexamen.ui.pantallas.PantallaNuevaConversacion
 
 enum class Pantallas(@StringRes val titulo: Int) {
-    Inicio(titulo = R.string.pantalla_inicio),
-    Insertar(titulo = R.string.insertar),
-    Actualizar(titulo = R.string.actualizar)
+    Lista(R.string.conversaciones),
+    Chat(R.string.chat),
+    Nuevo(R.string.nuevo)
 }
 
 @Composable
 fun SimulacroApp(
     viewModel: UsuarioViewModel = viewModel(factory = UsuarioViewModel.Factory),
     navController: NavHostController = rememberNavController()
-){
+) {
     val pilaRetroceso by navController.currentBackStackEntryAsState()
 
-    val pantallaActual =Pantallas.valueOf(
-        pilaRetroceso?.destination?.route?: Pantallas.Inicio.name
+    val pantallaActual = Pantallas.valueOf(
+        pilaRetroceso?.destination?.route ?: Pantallas.Lista.name
     )
+
     Scaffold(
         topBar = {
             AppTopBar(
                 pantallaActual = pantallaActual,
                 puedeNavegarAtras = navController.previousBackStackEntry != null,
-                onNavegarAtras = {navController.navigateUp()}
+                onNavegarAtras = { navController.navigateUp() }
             )
         },
         floatingActionButton = {
-            if(pantallaActual.titulo == R.string.pantalla_inicio) {
+            if (pantallaActual == Pantallas.Lista) {
                 FloatingActionButton(
-                    onClick = { navController.navigate(route = com.example.simulacroexamen.ui.Pantallas.Insertar.name) }
+                    onClick = { navController.navigate(Pantallas.Nuevo.name) }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Add,
@@ -68,61 +68,69 @@ fun SimulacroApp(
             }
         }
     ) { innerPadding ->
+
         val uiState = viewModel.usuarioUIState
 
         NavHost(
             navController = navController,
-            startDestination = Pantallas.Inicio.name,
+            startDestination = Pantallas.Lista.name,
             modifier = Modifier.padding(innerPadding)
-        ){
-            // Grafo de las rutas
-            composable(route = Pantallas.Inicio.name) {
+        ) {
+
+            composable(Pantallas.Lista.name) {
                 PantallaInicio(
                     appUIState = uiState,
-                    onUsuariosObtenidos = {viewModel.obtenerUsuarios()},
+                    onUsuariosObtenidos = { viewModel.obtenerUsuarios() },
                     onUsuarioPulsado = {
                         viewModel.actualizarUsuarioPulsado(it)
-                        navController.navigate(Pantallas.Actualizar.name)
+                        navController.navigate(Pantallas.Chat.name)
                     },
-                    modifier = Modifier
-                        .fillMaxSize()
+                    modifier = Modifier.fillMaxSize()
                 )
-                composable(route = Pantallas.Actualizar.name) {
-                    PantallaConversacion(
-                        usuario = viewModel.usuarioPulsado,
-                        onTrabajadorActualizado = {
-                            viewModel.actualizarUsuario(it.id, it)
-                            navController.popBackStack(Pantallas.Inicio.name, inclusive = false)
-                        },
-                        modifier = Modifier
-                            .fillMaxSize()
-                    )
-                }
+            }
+
+            composable(Pantallas.Chat.name) {
+                PantallaConversacion(
+                    usuario = viewModel.usuarioPulsado,
+                    onEnviarMensaje = { texto ->
+                        viewModel.enviarMensaje(texto)
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            composable(Pantallas.Nuevo.name) {
+                PantallaNuevaConversacion(
+                    onCrear = { nuevoUsuario ->
+                        viewModel.insertarUsuario(nuevoUsuario)
+                        navController.popBackStack(Pantallas.Lista.name, false)
+                    },
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
-
-
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppTopBar(
-    pantallaActual: com.example.simulacroexamen.ui.Pantallas,
+    pantallaActual: Pantallas,
     puedeNavegarAtras: Boolean,
     onNavegarAtras: () -> Unit,
     modifier: Modifier = Modifier
-){
+) {
     TopAppBar(
         title = { Text(text = stringResource(id = pantallaActual.titulo)) },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
         navigationIcon = {
-            if(puedeNavegarAtras) {
+            if (puedeNavegarAtras) {
                 IconButton(onClick = onNavegarAtras) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(id = R.string.atras)
+                        contentDescription = stringResource(R.string.atras)
                     )
                 }
             }
